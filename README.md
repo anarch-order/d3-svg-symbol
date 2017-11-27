@@ -1,8 +1,9 @@
 <snippet>
   <content><![CDATA[
-# ${1:D3 SVG Symbol Web Component}
 
-# \<d3-svg-symbol\>
+# ${1:D3 SVG Symbol Element}
+
+## \<d3-svg-symbol\>
 
 Basic svg symbol using the [D3.js](https://d3js.org/) framework. Component uses specifically: [d3.symbols](https://github.com/d3/d3/blob/master/API.md#symbols)
 
@@ -18,10 +19,12 @@ Basic svg symbol using the [D3.js](https://d3js.org/) framework. Component uses 
 ```
 -->
 ```html
-<d3-svg-symbol size="50" symbol-scale="50"></d3-svg-symbol>
+<style>
+      :host {
+        display: block;
+      }
+</style>
 <d3-svg-symbol symbol="circle" size="100" primary-color="gold" secondary-color="aqua" bounce color-toggle on-click></d3-svg-symbol>
-<d3-svg-symbol symbol="triangle" size="200" symbol-scale="50" primary-color="orange" secondary-color="green" color-toggle on-mouse-over on-mouse-out transition-duration="1500"></d3-svg-symbol>
-<d3-svg-symbol symbol="star" size="100" symbol-scale="30" primary-color="purple" secondary-color="silver" bounce on-click></d3-svg-symbol>
 ```
 
 
