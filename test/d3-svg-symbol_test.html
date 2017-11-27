@@ -21,7 +21,7 @@
 
     <test-fixture id="ChangedPropertyTestFixture">
       <template>
-        <d3-svg-symbol prop1="new-prop1"></d3-svg-symbol>
+        <d3-svg-symbol symbol="circle" size="200" primary-color="gold" secondary-color="aqua" bounce color-toggle on-click></d3-svg-symbol>
       </template>
     </test-fixture>
 
@@ -30,19 +30,27 @@
 
         test('instantiating the element with default properties works', () => {
           const element = fixture('BasicTestFixture');
-          assert.equal(element.prop1, 'd3-svg-symbol');
+          assert.equal(element.symbol, 'square');
+          assert.equal(element.size, '100');
+          assert.equal(element.primaryColor, 'gray');
+          assert.equal(element.secondaryColor, 'black');
+          assert.equal(element.bounce, false);
+          assert.equal(element.colorToggle, false);
+          assert.equal(element.onClick, false);
           const elementShadowRoot = element.shadowRoot;
-          const elementHeader = elementShadowRoot.querySelector('h2');
-          assert.equal(elementHeader.innerHTML, 'Hello d3-svg-symbol!');
         });
 
         test('setting a property on the element works', () => {
           // Create a test fixture
           const element = fixture('ChangedPropertyTestFixture');
-          assert.equal(element.prop1, 'new-prop1');
+          assert.equal(element.symbol, 'circle');
+          assert.equal(element.size, '200');
+          assert.equal(element.primaryColor, 'gold');
+          assert.equal(element.secondaryColor, 'aqua');
+          assert.equal(element.bounce, true);
+          assert.equal(element.colorToggle, true);
+          assert.equal(element.onClick, true);
           const elementShadowRoot = element.shadowRoot;
-          const elementHeader = elementShadowRoot.querySelector('h2');
-          assert.equal(elementHeader.innerHTML, 'Hello new-prop1!');
         });
 
       });

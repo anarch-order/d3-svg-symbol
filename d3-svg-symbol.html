@@ -71,6 +71,18 @@
             readOnly: false,
             reflectToAttribute: true
           },
+          onClick: {
+            type: Boolean,
+            value: false
+          },
+          onMouseOver: {
+            type: Boolean,
+            value: false
+          },
+          onMouseOut: {
+            type: Boolean,
+            value: false
+          },
           transitionDuration: {
             type: Number,
             value: 500,
@@ -90,6 +102,11 @@
           bounce: {
             type: Boolean,
             value: false
+          },
+          d3: {
+            type: Object,
+            notify: true,
+            value: function() { return {}; }
           },
           callback: {
             type: Object,
@@ -113,61 +130,46 @@
         
         var self = this;
         var data = [0];
-        var symbolGenerator = d3.symbol()
+        this.d3.symbol = d3.symbol()
                                 .type(this.d3Symbol())
                                 .size(size * this.symbolScale);
 
-        var pathData = symbolGenerator();
+        this.d3.path = this.d3.symbol();
 
-        var svg = d3.select('div')
+        this.d3.svg = d3.select('div')
                     .append('svg')
                     .attr('width', size)
                     .attr('height', size)
                     .attr('transform',function(d,i) { return 'translate('+ x +',' + y +')';});
         
-        svg.selectAll('.symbol')
+        this.d3.svg.selectAll('.symbol')
            .data(data)
            .enter()
            .append('path')
-           .attr('d', pathData)
+           .attr('d', this.d3.path)
            .attr('transform',function(d,i) { return 'translate('+ size / 2 +',' + size / 2 +')';})
            .style("fill", fill)
+           .on('mouseover', handleMouseOver)
+           .on('mouseout', handleMouseOut)
            .on('click', handleClick);
 
         function handleClick(){
-
-          var color;
-
-          if(self.state == 0){
-            self.state = 1;
-            color = self.secondaryColor;
-          } else {
-            self.state = 0;
-            color = self.primaryColor;
+          if(self.onClick){
+            self.animate(this);
           }
+        }
 
-          if(!self.colorToggle){
-            color = self.primaryColor
+        function handleMouseOver(){
+          if(self.onMouseOver){
+            self.animate(this);
           }
+        }
 
-          if(self.colorToggle){
-            d3.select(this).transition()
-                            .duration(self.transitionDuration)
-                            .style("fill", color);
+        function handleMouseOut(){
+          if(self.onMouseOut){
+            self.animate(this);
           }
-
-          if(self.bounce){
-            d3.select(this).transition()
-                            .ease(d3.easeBack)
-                            .duration(self.transitionDuration * 0.25)
-                            .attr('d', symbolGenerator.size((self.size * self.symbolScale) * 0.75))
-                            .transition()
-                            .ease(d3.easeBounce)
-                            .duration(self.transitionDuration * 0.75)
-                            .attr('d', symbolGenerator.size(self.size * self.symbolScale))
-                            .style("fill", color);
-          }
-        }                     
+        }                         
       }
 
       d3Symbol(){
@@ -196,6 +198,41 @@
             default:
                 return d3.symbolSquare;
         }
+      }
+
+      animate(elem){
+
+        var color;
+
+        if(this.state == 0){
+          this.state = 1;
+          color = this.secondaryColor;
+        } else {
+          this.state = 0;
+          color = this.primaryColor;
+        }
+
+        if(!this.colorToggle){
+          color = this.primaryColor
+        }
+
+        if(this.colorToggle){
+          d3.select(elem).transition()
+                          .duration(this.transitionDuration)
+                          .style("fill", color);
+        }
+
+        if(this.bounce){
+          d3.select(elem).transition()
+                          .ease(d3.easeBack)
+                          .duration(this.transitionDuration * 0.25)
+                          .attr('d', this.d3.symbol.size((this.size * this.symbolScale) * 0.75))
+                          .transition()
+                          .ease(d3.easeBounce)
+                          .duration(this.transitionDuration * 0.75)
+                          .attr('d', this.d3.symbol.size(this.size * this.symbolScale))
+                          .style("fill", color);
+          }
       }
     }
 
