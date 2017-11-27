@@ -1,0 +1,204 @@
+<link rel="import" href="../polymer/polymer-element.html">
+
+<dom-module id="d3-svg-symbol">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+    <div id='container' on-tap='_tapHandler'></div>
+  </template>
+
+  <script src="/node_modules/d3/build/d3.min.js"></script>
+
+  <script>
+    /**
+     * `d3-svg-symbol`
+     * Create a svg symbol using the D3 framework.
+     *
+     * @customElement
+     * @polymer
+     * @demo demo/index.html
+     */
+    class D3SvgSymbol extends Polymer.Element {
+      static get is() { return 'd3-svg-symbol'; }
+      static get properties() {
+        return {
+          symbol: {
+            type: String,
+            value: 'square'
+          },
+          primaryColor: {
+            type: String,
+            value: 'gray'
+          },
+          secondaryColor: {
+            type: String,
+            value: 'black'
+          },
+          color: {
+            type: String,
+            value: 'gray',
+            notify: true,
+            readOnly: false
+          },
+          x: {
+            type: Number,
+            value: 0,
+            notify: true,
+            readOnly: false,
+            reflectToAttribute: true
+          },
+          y: {
+            type: Number,
+            value: 0,
+            notify: true,
+            readOnly: false,
+            reflectToAttribute: true
+          },
+          size: {
+            type: Number,
+            value: 100,
+            notify: true,
+            readOnly: false,
+            reflectToAttribute: true
+          },
+          symbolScale: {
+            type: Number,
+            value: 75,
+            notify: true,
+            readOnly: false,
+            reflectToAttribute: true
+          },
+          transitionDuration: {
+            type: Number,
+            value: 500,
+            notify: true,
+            readOnly: false
+          },
+          state: {
+            type: Number,
+            value: 0,
+            notify: true,
+            readOnly: false
+          },
+          colorToggle: {
+            type: Boolean,
+            value: false
+          },
+          bounce: {
+            type: Boolean,
+            value: false
+          },
+          callback: {
+            type: Object,
+            notify: true,
+            value: function() { return {}; }
+          }
+        };
+      }
+
+      constructor() {
+        super();
+      }
+
+      ready() {
+        super.ready();
+        
+        this.createSymbol(this.x, this.y, this.size, this.primaryColor);
+      }
+
+      createSymbol(x, y, size, fill){
+        
+        var self = this;
+        var data = [0];
+        var symbolGenerator = d3.symbol()
+                                .type(this.d3Symbol())
+                                .size(size * this.symbolScale);
+
+        var pathData = symbolGenerator();
+
+        var svg = d3.select('div')
+                    .append('svg')
+                    .attr('width', size)
+                    .attr('height', size)
+                    .attr('transform',function(d,i) { return 'translate('+ x +',' + y +')';});
+        
+        svg.selectAll('.symbol')
+           .data(data)
+           .enter()
+           .append('path')
+           .attr('d', pathData)
+           .attr('transform',function(d,i) { return 'translate('+ size / 2 +',' + size / 2 +')';})
+           .style("fill", fill)
+           .on('click', handleClick);
+
+        function handleClick(){
+
+          var color;
+
+          if(self.state == 0){
+            self.state = 1;
+            color = self.secondaryColor;
+          } else {
+            self.state = 0;
+            color = self.primaryColor;
+          }
+
+          if(!self.colorToggle){
+            color = self.primaryColor
+          }
+
+          if(self.colorToggle){
+            d3.select(this).transition()
+                            .duration(self.transitionDuration)
+                            .style("fill", color);
+          }
+
+          if(self.bounce){
+            d3.select(this).transition()
+                            .ease(d3.easeBack)
+                            .duration(self.transitionDuration * 0.25)
+                            .attr('d', symbolGenerator.size((self.size * self.symbolScale) * 0.75))
+                            .transition()
+                            .ease(d3.easeBounce)
+                            .duration(self.transitionDuration * 0.75)
+                            .attr('d', symbolGenerator.size(self.size * self.symbolScale))
+                            .style("fill", color);
+          }
+        }                     
+      }
+
+      d3Symbol(){
+        switch(this.symbol) {
+            case "square":
+              return d3.symbolSquare;
+                break;
+            case "circle":
+                return d3.symbolCircle;
+                break;
+            case "triangle":
+                return d3.symbolTriangle;
+                break;
+            case "diamond":
+                return d3.symbolDiamond;
+                break;
+            case "star":
+                return d3.symbolStar;
+                break;
+            case "cross":
+                return d3.symbolCross;
+                break;
+            case "y":
+                return d3.symbolWye;
+                break;
+            default:
+                return d3.symbolSquare;
+        }
+      }
+    }
+
+    window.customElements.define(D3SvgSymbol.is, D3SvgSymbol);
+  </script>
+</dom-module>

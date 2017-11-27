@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+
+    <title>d3-svg-symbol demo</title>
+
+    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+
+    <link rel="import" href="../../iron-demo-helpers/demo-pages-shared-styles.html">
+    <link rel="import" href="../../iron-demo-helpers/demo-snippet.html">
+    <link rel="import" href="../d3-svg-symbol.html">
+
+    <custom-style>
+      <style is="custom-style" include="demo-pages-shared-styles">
+      </style>
+    </custom-style>
+  </head>
+  <body>
+    <div class="vertical-section-container centered">
+      <h3>d3-svg-symbol Demo</h3>
+      <demo-snippet>
+        <template>
+          <d3-svg-symbol size="50" symbol-scale="50"></d3-svg-symbol>
+          <d3-svg-symbol symbol="circle" size="100" primary-color="gold" secondary-color="aqua" bounce color-toggle></d3-svg-symbol>
+          <d3-svg-symbol symbol="triangle" size="200" symbol-scale="50" primary-color="orange" secondary-color="green" color-toggle transition-duration="1500"></d3-svg-symbol>
+          <d3-svg-symbol symbol="star" size="100" symbol-scale="30" primary-color="purple" secondary-color="silver" bounce></d3-svg-symbol>
+        </template>
+      </demo-snippet>
+    </div>
+  </body>
+</html>
