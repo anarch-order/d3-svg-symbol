@@ -1,3 +1,5 @@
+<snippet>
+  <content><![CDATA[
 # ${1:D3 SVG Symbol Web Component}
 
 # \<d3-svg-symbol\>
@@ -40,3 +42,7 @@ $ polymer test
 ```
 
 Your application is already set up to be tested via [web-component-tester](https://github.com/Polymer/web-component-tester). Run `polymer test` to run your application's test suite locally.
+
+]]></content>
+  <tabTrigger>readme</tabTrigger>
+</snippet>
