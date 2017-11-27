@@ -19,11 +19,14 @@ bower install d3-svg-symbol
 ```
 -->
 ```html
-<style>
-      :host {
-        display: block;
-      }
-</style>
+<link rel="import" href="../../iron-demo-helpers/demo-pages-shared-styles.html">
+<link rel="import" href="../../iron-demo-helpers/demo-snippet.html">
+<link rel="import" href="../d3-svg-symbol.html">
+
+<custom-style>
+    <style is="custom-style" include="demo-pages-shared-styles">
+    </style>
+</custom-style>
 <d3-svg-symbol symbol="circle" size="100" primary-color="gold" secondary-color="aqua" bounce color-toggle on-click></d3-svg-symbol>
 ```
 
