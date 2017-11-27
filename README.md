@@ -1,5 +1,4 @@
-<snippet>
-  <content><![CDATA[
+
 [![Published on webcomponents.org](https://img.shields.io/badge/webcomponents.org-published-blue.svg)](https://www.webcomponents.org/element/anarch-order/d3-svg-symbol)
 ## \<d3-svg-symbol\>
 
@@ -46,7 +45,3 @@ $ polymer test
 ```
 
 Your application is already set up to be tested via [web-component-tester](https://github.com/Polymer/web-component-tester). Run `polymer test` to run your application's test suite locally.
-
-]]></content>
-  <tabTrigger>readme</tabTrigger>
-</snippet>
