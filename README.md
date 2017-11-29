@@ -2,7 +2,7 @@
 [![Published on webcomponents.org](https://img.shields.io/badge/webcomponents.org-published-blue.svg)](https://www.webcomponents.org/element/anarch-order/d3-svg-symbol)
 ## \<d3-svg-symbol\>
 
-Basic svg symbol using the [D3.js](https://d3js.org/) framework. Component uses specifically: [d3.symbols](https://github.com/d3/d3/blob/master/API.md#symbols)
+Basic svg symbol using the [D3.js](https://d3js.org/) framework. Component that uses specifically: [d3.symbols](https://github.com/d3/d3/blob/master/API.md#symbols)
 
 ## Installation
 bower install d3-svg-symbol
