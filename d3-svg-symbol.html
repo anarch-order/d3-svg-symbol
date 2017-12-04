@@ -71,6 +71,12 @@
             readOnly: false,
             reflectToAttribute: true
           },
+          appendTo: {
+            type: String,
+            value: '#demo',
+            notify: true,
+            readOnly: false
+          },
           onClick: {
             type: Boolean,
             value: false
@@ -136,7 +142,7 @@
 
         this.d3.path = this.d3.symbol();
 
-        this.d3.svg = d3.select('div')
+        this.d3.svg = d3.select(this.appendTo)
                     .append('svg')
                     .attr('width', size)
                     .attr('height', size)
