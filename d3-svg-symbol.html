@@ -43,6 +43,29 @@
             notify: true,
             readOnly: false
           },
+          colorArray: {
+            type: Array,
+            value: function() { return []; }
+          },
+          parseColors: {
+            type: String,
+            value: '',
+            notify: true,
+            observer: '_parseColors'
+          },
+          strokeColor: {
+            type: String,
+            value: 'gray',
+            notify: true,
+            readOnly: false
+          },
+          strokeWidth: {
+            type: Number,
+            value: 0,
+            notify: true,
+            readOnly: false,
+            reflectToAttribute: true
+          },
           x: {
             type: Number,
             value: 0,
@@ -85,13 +108,33 @@
           },
           onClick: {
             type: Boolean,
-            value: false
+            value: false,
+            notify: true,
+            observer: '_mouseDownEvent'
           },
           onMouseOver: {
             type: Boolean,
-            value: false
+            value: false,
+            notify: true,
+            observer: '_mouseOverEvent'
           },
           onMouseOut: {
+            type: Boolean,
+            value: false,
+            notify: true,
+            observer: '_mouseOutEvent'
+          },
+          draw: {
+            type: Boolean,
+            value: false,
+            notify: true,
+            observer: '_drawEvent'
+          },
+          drawing: {
+            type: Boolean,
+            value: false
+          },
+          mouseDown: {
             type: Boolean,
             value: false
           },
@@ -115,6 +158,10 @@
             type: Boolean,
             value: false
           },
+          colorCycle: {
+            type: Boolean,
+            value: false
+          },
           d3: {
             type: Object,
             notify: true,
@@ -124,66 +171,192 @@
             type: Object,
             notify: true,
             value: function() { return {}; }
-          }
+          },
+          events: {
+            type: Object,
+            notify: true,
+            value: function() { return []; }
+          },
+          controller: {
+            type: Object,
+            notify: true,
+            value: function() { return {}; }
+          },
         };
       }
 
+      //Constructor
       constructor() {
         super();
       }
 
+      //When attached
       ready() {
         super.ready();
         
-        this.createSymbol(this.x, this.y, this.size, this.primaryColor);
+        this.createSymbol(this.x, this.y, this.size, this.primaryColor, this.strokeColor, this.strokeWidth);
       }
 
-      createSymbol(x, y, size, fill){
+      //tap event
+      _mouseDownEvent(on){
+        var event = 'mousedown'
+        if (window.PointerEvent) { event = 'pointerdown'};
+        this.updateEvent(on, event);
+      }
+
+      //hover event
+      _mouseOverEvent(on){
+        var event = 'mouseover'
+        if (window.PointerEvent) { event = 'pointerover'};
+        this.updateEvent(on, event);
+      }
+
+      //hover out event
+      _mouseOutEvent(on){
+        var event = 'mouseout'
+        if (window.PointerEvent) { event = 'pointerout'};
+        this.updateEvent(on, event);
+      }
+
+      //draw event, used with d3_svg_grid 'draw' settings
+      _drawEvent(on){
+        this.updateEvent();
+      }
+
+      //draw event, used with d3_svg_grid 'draw' settings
+      _parseColors(colorString){
+        var colorArray = colorString.split(',');
+        this.colorArray = colorArray;
+      }
+
+      //Updates registered event based on this.events string array
+      updateEvent(on, event){
+
+        if(on && !this.events.includes(event)){
+          this.events.push(event);
+        }
+        else if(!on && this.events.includes(event))
+        {
+          var index = this.events.indexOf(event);
+          this.events.splice(index, 1);
+        }
+      }
+
+      //Updates event based on type of this symbol
+      updateEvents(){
+
+        if(this.draw)
+        {
+          //force update so arrays are current
+          this.draw = !this.draw;
+          this.draw = !this.draw;
+          this.onClick = false;
+          this.onMouseOver = false;
+          this.onMouseOut = false;
+
+          this.registerDrawEvents();
+        }
+        else
+        {
+          //force update so arrays are current
+          this.onClick = !this.onClick;
+          this.onClick = !this.onClick;
+          this.onMouseOver = !this.onMouseOver;
+          this.onMouseOver = !this.onMouseOver;
+          this.onMouseOut = !this.onMouseOut;
+          this.onMouseOut = !this.onMouseOut;
+
+          //Register the events
+          for(var index in this.events)
+          {
+            this.registerEvent(this.events[index]);
+          }
+
+        }
+        
+      }
+
+      registerEvent(event){
+        var self = this;
+
+        if(this.d3.elem != undefined)
+        {
+          this.d3.elem.on(event, handler);
+        }
+
+        function handler(){
+          self.animate(this);
+        }
+      }
+
+      //Specific events for 'draw' type, used with 'd3_svg_grid'.
+      registerDrawEvents(){
+        var self = this;
+
+        if(this.d3.elem != undefined){
+          if (window.PointerEvent) {
+
+            this.d3.elem.on('pointerdown', onDraw)
+                        .on('pointerover', onDraw)
+                        .on('pointerup', stopDraw)
+                        .on('pointerout', stopDraw);
+
+          }else{
+            this.d3.elem.on('mousedown', onDraw)
+                        .on('mouseover', onDraw)
+                        .on('mouseup', stopDraw)
+                        .on('mouseout', stopDraw);
+          }
+        }
+
+        function onDraw(){
+
+          if(self.drawing){
+
+            self.animate(this);
+
+          }
+        }
+
+        function stopDraw(){
+
+          self.drawing = false;
+
+        }
+      }
+
+      //Symbol creation method.
+      createSymbol(x, y, size, fill, strokeColor, strokeWidth){
         
         var self = this;
         var data = [0];
+
         this.d3.symbol = d3.symbol()
-                                .type(this.d3Symbol())
-                                .size(size * this.symbolScale);
+                           .type(this.d3Symbol())
+                           .size(size * this.symbolScale);
 
         this.d3.path = this.d3.symbol();
 
         this.d3.svg = d3.select(this.appendTo)
-                    .append('svg')
-                    .attr('width', size)
-                    .attr('height', size)
-                    .attr('transform',function(d,i) { return 'translate('+ x +',' + y +')';});
+                        .append('svg')
+                        .attr('width', size)
+                        .attr('height', size)
+                        .attr('transform',function(d,i) { return 'translate('+ x +',' + y +')';})
+                        .attr("stroke", strokeColor)
+                        .attr("stroke-width", strokeWidth);
         
-        this.d3.svg.selectAll('.symbol')
-           .data(data)
-           .enter()
-           .append('path')
-           .attr('d', this.d3.path)
-           .attr('transform',function(d,i) { return 'translate('+ size / 2 +',' + size / 2 +')';})
-           .style("fill", fill)
-           .on('mouseover', handleMouseOver)
-           .on('mouseout', handleMouseOut)
-           .on('click', handleClick);
+        this.d3.elem = this.d3.svg.selectAll('.symbol')
+                                  .data(data)
+                                  .enter()
+                                  .append('path')
+                                  .attr('d', this.d3.path)
+                                  .attr('transform',function(d,i) { return 'translate('+ size / 2 +',' + size / 2 +')';})
+                                  .style("fill", fill);
 
-        function handleClick(){
-          if(self.onClick){
-            self.animate(this);
-          }
-        }
-
-        function handleMouseOver(){
-          if(self.onMouseOver){
-            self.animate(this);
-          }
-        }
-
-        function handleMouseOut(){
-          if(self.onMouseOut){
-            self.animate(this);
-          }
-        }                         
+        this.updateEvents();                         
       }
 
+      //Return the specific D3 symbol based on string type name.
       d3Symbol(){
         switch(this.symbol) {
             case "square":
@@ -212,26 +385,54 @@
         }
       }
 
+      colorIndex(arr, color)
+      {
+        var result = -1;
+        for(var i in arr){
+          console.log(i);
+            if(arr[i] == color){
+              result = i;
+              break;
+            }
+        }
+        return result;
+      }
+
+      //Animation method
       animate(elem){
-
-        var color;
-
+        
         if(this.state == 0){
           this.state = 1;
-          color = this.secondaryColor;
+          this.color = this.secondaryColor;
         } else {
           this.state = 0;
-          color = this.primaryColor;
+          this.color = this.primaryColor;
         }
 
         if(!this.colorToggle){
-          color = this.primaryColor
+          this.color = this.primaryColor
         }
 
-        if(this.colorToggle){
+        if(this.colorCycle && this.colorArray != undefined){
+
+          var index = this.colorIndex(this.colorArray, this.color);
+          index ++;
+
+          if(index > this.colorArray.length - 1){
+            index = 0;
+          }
+          
+          var newColor = this.colorArray[index];
+
+          this.color = newColor;
+          this.primaryColor = newColor;
+          this.secondaryColor = newColor;
+        }
+
+        if(this.colorToggle || this.colorCycle){
           d3.select(elem).transition()
                           .duration(this.transitionDuration)
-                          .style("fill", color);
+                          .style("fill", this.color);
         }
 
         if(this.bounce){
@@ -243,7 +444,7 @@
                           .ease(d3.easeBounce)
                           .duration(this.transitionDuration * 0.75)
                           .attr('d', this.d3.symbol.size(this.size * this.symbolScale))
-                          .style("fill", color);
+                          .style("fill", this.color);
           }
       }
     }
